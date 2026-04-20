@@ -1,78 +1,52 @@
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import { TripContext } from "../context/TripContext";
+import React, { useState } from 'react';
+import { db, auth } from '../services/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
-function CreateTrip() {
-  const { addTrip } = useContext(TripContext);
+const CreateTrip = () => {
+  const [destination, setDestination] = useState('');
+  const [date, setDate] = useState('');
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    destination: "",
-    budget: "",
-    itinerary: [],
-    expenses: [],
-    documents: [],
-  });
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handleCreateTrip = async (e) => {
     e.preventDefault();
-
     try {
-      await addTrip({
-        ...formData,
-        budget: Number(formData.budget),
+      await addDoc(collection(db, "trips"), {
+        destination,
+        date,
+        userId: auth.currentUser.uid,
+        createdAt: new Date()
       });
-      navigate("/dashboard");
-    } catch (error) {
-      alert(error.message);
+      alert("Trip Added Successfully!");
+      navigate('/dashboard');
+    } catch (err) {
+      console.error("Error adding trip: ", err);
     }
   };
 
   return (
-    <div>
-      <Navbar />
-      <div className="page-container">
-        <form className="trip-form" onSubmit={handleSubmit}>
-          <h2>Create Trip</h2>
-
-          <input
-            type="text"
-            name="name"
-            placeholder="Trip name"
-            value={formData.name}
-            onChange={handleChange}
+    <div style={{ backgroundColor: '#121926', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontFamily: 'sans-serif' }}>
+      <div style={{ backgroundColor: '#1f2937', padding: '30px', borderRadius: '12px', width: '350px' }}>
+        <h2>Plan New Trip</h2>
+        <form onSubmit={handleCreateTrip}>
+          <input 
+            type="text" placeholder="Destination" 
+            onChange={(e) => setDestination(e.target.value)}
+            style={{ width: '100%', padding: '10px', margin: '10px 0', borderRadius: '5px', border: 'none' }} required 
           />
-
-          <input
-            type="text"
-            name="destination"
-            placeholder="Destination"
-            value={formData.destination}
-            onChange={handleChange}
+          <input 
+            type="date" 
+            onChange={(e) => setDate(e.target.value)}
+            style={{ width: '100%', padding: '10px', margin: '10px 0', borderRadius: '5px', border: 'none' }} required 
           />
-
-          <input
-            type="number"
-            name="budget"
-            placeholder="Total budget"
-            value={formData.budget}
-            onChange={handleChange}
-          />
-
-          <button type="submit">Create Trip</button>
+          <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+            Add Trip
+          </button>
         </form>
+        <button onClick={() => navigate('/dashboard')} style={{ marginTop: '10px', background: 'none', color: '#9ca3af', border: 'none', cursor: 'pointer', width: '100%' }}>Cancel</button>
       </div>
     </div>
   );
-}
+};
 
 export default CreateTrip;

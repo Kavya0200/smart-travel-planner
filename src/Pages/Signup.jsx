@@ -1,56 +1,40 @@
-// import { useState } from "react";
-// import { signup } from "../services/authService";
-// import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { auth } from '../services/firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useNavigate, Link } from 'react-router-dom';
 
-// function Signup() {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
+const Signup = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-//   const handleSignup = async (e) => {
-//     e.preventDefault();
-//     try {
-//       await signup(email, password);
-//       navigate("/dashboard");
-//     } catch (error) {
-//       alert(error.message);
-//     }
-//   };
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("Account Created Successfully!");
+      navigate('/login');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
-//   return (
-//     <div className="auth-container">
-//       <form className="auth-form" onSubmit={handleSignup}>
-//         <h2>Signup</h2>
-
-//         <input
-//           type="email"
-//           placeholder="Enter email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//         />
-
-//         <input
-//           type="password"
-//           placeholder="Enter password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//         />
-
-//         <button type="submit">Signup</button>
-
-//         <p>
-//           Already have an account? <Link to="/">Login</Link>
-//         </p>
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default Signup;
-
-
-function Signup() {
-  return <h1>Signup Page Working</h1>;
-}
+  return (
+    <div style={{ backgroundColor: '#121926', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', fontFamily: 'sans-serif' }}>
+      <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '16px', width: '400px', textAlign: 'center' }}>
+        <h2 style={{ color: '#121926', marginBottom: '20px' }}>Create Account</h2>
+        {error && <p style={{ color: 'red', fontSize: '12px' }}>{error}</p>}
+        <form onSubmit={handleSignup}>
+          <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: 'none', backgroundColor: '#333', color: '#fff', boxSizing: 'border-box' }} required />
+          <input type="password" placeholder="Password (min 6 chars)" onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '12px', marginBottom: '20px', borderRadius: '8px', border: 'none', backgroundColor: '#333', color: '#fff', boxSizing: 'border-box' }} required />
+          <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Signup</button>
+        </form>
+        <p style={{ marginTop: '20px', color: '#333' }}>Already have an account? <Link to="/login" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 'bold' }}>Login</Link></p>
+      </div>
+    </div>
+  );
+};
 
 export default Signup;
